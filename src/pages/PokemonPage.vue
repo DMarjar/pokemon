@@ -2,11 +2,26 @@
   <div v-if="!pokemon">
     <h1>Loading...</h1>
   </div>
+
   <div v-else>
     <h1>Who's that Pokémon?</h1>
     <hr />
-    <PokemonPicture :pokemonId="pokemon.id" :showPokemon="showPokemon" />
-    <PokemonOptions :pokemons="pokemonArray" />
+
+    <PokemonPicture :pokemon-id="pokemon.id" :show-pokemon="showPokemon" />
+
+    <PokemonOptions :pokemons="pokemonArray" @selection="checkAnswer" />
+
+    <!-- Caso 1: con un div -->
+    <div class="fade-in" v-if="showAnswer">
+      <h2>{{ message }}</h2>
+      <button @click="newGame">New game</button>
+    </div>
+
+    <!-- Caso 2: con un template -->
+    <!-- <template v-if="showAnswer">
+      <h2>{{ message }}</h2>
+      <button @click="newGame">New game</button>
+    </template> -->
   </div>
 </template>
 
@@ -25,7 +40,9 @@ export default {
       pokemonArray: [],
       pokemon: null,
       showPokemon: false,
-    }
+      showAnswer: false,
+      message: "",
+    };
   },
   methods: {
     async mixPokemonArray() {
@@ -33,11 +50,30 @@ export default {
 
       const rndInt = Math.floor(Math.random() * 4);
       this.pokemon = this.pokemonArray[rndInt];
-    }
+    },
+    checkAnswer(selectedId) {
+      this.showPokemon = true;
+      this.showAnswer = true;
+      if (selectedId === this.pokemon.id) {
+        this.message = `Correct! It is ${this.capitalize(this.pokemon.name)}`;
+      } else {
+        this.message = `Wrong! It was ${this.capitalize(this.pokemon.name)}`;
+      }
+    },
+    capitalize(name) {
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    },
+    newGame() {
+      this.showPokemon = false;
+      this.showAnswer = false;
+      this.pokemonArray = [];
+      this.pokemon = null;
+      this.mixPokemonArray();
+    },
   },
   mounted() {
     this.mixPokemonArray();
-  }
+  },
 };
 </script>
 
